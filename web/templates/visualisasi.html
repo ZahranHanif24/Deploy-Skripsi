@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+  <h1>📊 Visualisasi Dataset</h1>
+  <p>
+    Berikut visualisasi dataset berdasarkan dua label sentimen:
+    <strong>Positive</strong> dan <strong>Negative</strong>.
+  </p>
+
+  <!-- ======================== -->
+  <!-- Pie Chart + Interpretasi -->
+  <!-- ======================== -->
+  <h2>🍩 Proporsi Sentimen</h2>
+  <div style="display:flex;justify-content:center;align-items:flex-start;gap:30px;flex-wrap:wrap;">
+
+    <!-- Kolom kiri (Paragraf interpretasi umum) -->
+    <div style="flex:1;min-width:250px;">
+      <h4>🗣️ Gambaran Umum</h4>
+      <p style="text-align:justify;">
+        Pie chart menunjukkan distribusi proporsi sentimen pada data.
+        Kita dapat melihat seberapa besar dominasi Positif (<strong>Not Suicide</strong>) dibanding Negatif (<strong>Suicide</strong>.)
+      </p>
+    </div>
+
+    <!-- Bagian tengah (Pie Chart) -->
+    <div style="flex:1;min-width:300px;text-align:center;">
+      <canvas id="pieChart" width="300" height="300"></canvas>
+    </div>
+
+    <!-- Kolom kanan (2 paragraf interpretasi detail) -->
+    <div style="flex:1;min-width:250px;display:flex;flex-direction:column;gap:20px;">
+      <div>
+        <h4>📈 Interpretasi Label Not Suicide</h4>
+        <p style="text-align:justify;">
+          Pada label positif (Not Suicide) yang berjumlah 2.273 data, teks-teks yang termasuk dalam kategori ini umumnya tidak mengandung indikasi atau ekspresi 
+          yang berkaitan dengan tindakan bunuh diri. Kalimat dalam kategori ini cenderung menampilkan emosi netral atau positif, seperti rasa syukur, motivasi, semangat hidup, 
+          serta pembahasan umum yang tidak menunjukkan tanda-tanda keputusasaan atau niat menyakiti diri sendiri. Jumlah data yang besar pada kategori ini menunjukkan bahwa sebagian 
+          besar teks dalam dataset menggambarkan kondisi psikologis yang stabil atau tidak berisiko.
+        </p>
+      </div>
+      <div>
+        <h4>📉 Interpretasi Label Suicide</h4>
+        <p style="text-align:justify;">
+          Sementara itu, pada label negatif (Suicide) yang berjumlah 645 data, teks-teks di dalamnya mengandung indikasi atau ekspresi yang berkaitan dengan keinginan, niat, 
+          atau pemikiran untuk bunuh diri. Ciri-ciri teks dalam kategori ini meliputi kata-kata yang menunjukkan keputusasaan, kehilangan harapan, rasa sakit emosional yang mendalam, 
+          atau pernyataan eksplisit mengenai keinginan untuk mengakhiri hidup. Jumlah data yang lebih sedikit pada kategori ini menunjukkan bahwa ekspresi bunuh diri relatif jarang muncul dibandingkan teks normal, 
+          namun tetap sangat penting untuk diperhatikan karena memiliki implikasi serius terhadap kesehatan mental dan kebutuhan intervensi dini.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================== -->
+  <!-- Bar Chart -->
+  <!-- ======================== -->
+  <h2 style="margin-top:50px;">📊 Jumlah Data per Sentimen</h2>
+  <canvas id="barChart" width="400" height="200"></canvas>
+
+  <!-- ======================== -->
+  <!-- Wordcloud -->
+  <!-- ======================== -->
+  <h2>☁️ Wordcloud per Sentimen</h2>
+  <div style="display:flex;justify-content:space-around;flex-wrap:wrap;gap:20px;">
+    <div>
+      <h3 style="text-align:center;">Positive (Not Potential Suicidal Post) 😀</h3>
+      <img src="{{ url_for('static', filename='wordcloud_positive.png') }}"
+           alt="Wordcloud Positive"
+           style="max-width:100%;border-radius:10px;">
+    </div>
+    <div>
+      <h3 style="text-align:center;">Negative (Potential Suicidal Post) 😡</h3>
+      <img src="{{ url_for('static', filename='wordcloud_negative.png') }}"
+           alt="Wordcloud Negative"
+           style="max-width:100%;border-radius:10px;">
+    </div>
+  </div>
+</div>
+
+<!-- ======================== -->
+<!-- Chart.js -->
+<!-- ======================== -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  // Data dari Flask (format [Positive, Negative])
+  const pieData = {{ pie_data|tojson }};
+  const barData = {{ bar_data|tojson }};
+
+  // Pie Chart
+  new Chart(document.getElementById("pieChart"), {
+    type: "pie",
+    data: {
+      labels: ["Positive (Not Potential Suicidal Post) 😀", "Negative (Potential Suicidal Post) 😡"],
+      datasets: [{
+        data: pieData,
+        backgroundColor: ["#4CAF50", "#F44336"]
+      }]
+    }
+  });
+
+  // Bar Chart
+  new Chart(document.getElementById("barChart"), {
+    type: "bar",
+    data: {
+      labels: ["Positive (Not Potential Suicidal Post) 😀", "Negative (Potential Suicidal Post) 😡"],
+      datasets: [{
+        label: "Jumlah",
+        data: barData,
+        backgroundColor: ["#4CAF50", "#F44336"]
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: { y: { beginAtZero: true } }
+    }
+  });
+</script>
+{% endblock %}

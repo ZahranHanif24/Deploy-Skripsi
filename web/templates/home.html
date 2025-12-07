@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid p-0">
+
+  <!-- Hero Section -->
+  <section style="background:linear-gradient(135deg, #0b7ae8, #34495e); color:white; padding:70px 20px; text-align:center;">
+    <div class="container">
+      <h1 style="font-weight:700; font-size:2.8rem; margin-bottom:20px;">
+        📖 Analisis Sentimen dengan Naive Bayes, SVM, dan Logistic Regression
+      </h1>
+      <p style="font-size:18px; max-width:800px; margin:auto; line-height:1.7; color:#ecf0f1;">
+        Aplikasi ini dirancang untuk mengklasifikasikan teks berbahasa Indonesia ke dalam kelas  
+        <span style="color:#f1c40f; font-weight:600;">Not Suicide</span>, atau 
+        <span style="color:#e74c3c; font-weight:600;">Suicide</span>.  
+        Dibangun dengan model <strong>Naive Bayes</strong>, <strong>SVM</strong>,<strong>Logistic Regression</strong> dan Flask.
+      </p>
+    </div>
+  </section>
+
+  <!-- Latar Belakang -->
+  <section style="background:#f8f9fa; padding:60px 20px;">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-md-10">
+          <div class="p-4 shadow-sm rounded" style="background:white; border-left:6px solid #3498db;">
+            <h2 style="color:#2c3e50; font-size:1.8rem; margin-bottom:20px;">🔹 Latar Belakang</h2>
+            <p style="line-height:1.8; font-size:17px; color:#555;">
+              Analisis sentimen adalah proses untuk memahami dan mengklasifikasikan opini, emosi, atau sikap seseorang yang terkandung dalam sebuah teks. Dalam penelitian ini, 
+              analisis sentimen digunakan untuk mendeteksi indikasi bunuh diri pada teks media sosial dengan dua label utama, yaitu “suicide” (mengandung indikasi bunuh diri) dan 
+              “not suicide” (tidak mengandung indikasi bunuh diri). Model dikembangkan menggunakan beberapa algoritma pembelajaran mesin, yaitu Support Vector Machine (SVM), Naive Bayes, dan Regresi Logistik. 
+              Ketiga metode ini digunakan untuk membandingkan kemampuan klasifikasi teks berdasarkan fitur-fitur linguistik yang diekstraksi dari data pelatihan. SVM bekerja dengan mencari batas optimal yang memisahkan dua kelas 
+              dengan margin terbesar, sementara Naive Bayes mengandalkan probabilitas kemunculan kata untuk menentukan kecenderungan suatu teks terhadap kelas tertentu. Regresi Logistik memodelkan hubungan antara fitur teks dan probabilitas label 
+              untuk melakukan prediksi yang lebih interpretatif. Dengan pendekatan ini, sistem mampu mengidentifikasi pola bahasa yang berkaitan dengan risiko bunuh diri secara otomatis, sehingga dapat membantu proses deteksi dini dan intervensi yang lebih cepat.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Metodologi -->
+  <section style="background:#ecf0f1; padding:60px 20px;">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-md-10">
+          <div class="p-4 shadow-sm rounded" style="background:white; border-left:6px solid #2ecc71;">
+            <h2 style="color:#2c3e50; font-size:1.8rem; margin-bottom:20px;">🔹 Metodologi</h2>
+            <ol style="line-height:1.9; font-size:17px; color:#555; padding-left:20px;">
+              <li><strong>Pengumpulan Data</strong>: Dataset teks dari media sosial X dan dari Kaggle dengan label.</li>
+              <li><strong>Preprocessing</strong>: Case folding, normalisasi slang, tokenisasi, stopword removal, stemming.</li>
+              <li><strong>Split Data & Eksraksi Teks</strong>: Split data menjadi 80% untuk data training dan 20% untuk data testing.</li>
+              <li><strong>Pelatihan Model</strong>: Membuat model menggunakan 3 algoritma yaitu Naive Bayes, SVM, dan Regresi Logistik.</li>
+              <li><strong>Evaluasi</strong>: Mengukur performa dengan akurasi, precision, recall, dan F1-score.</li>
+              <li><strong>Implementasi Web</strong>: Membangun aplikasi web interaktif berbasis Flask.</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+{% endblock %}
