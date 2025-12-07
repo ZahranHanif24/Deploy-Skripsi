@@ -80,11 +80,13 @@
 <!-- ======================== -->
 <!-- Chart.js -->
 <!-- ======================== -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script>
-  // Data dari Flask (format [Positive, Negative])
-  const pieData = {{ pie_data|tojson }};
-  const barData = {{ bar_data|tojson }};
+document.addEventListener("DOMContentLoaded", function() {
+  // Data dari Flask (format [Positive, Negative]) — aman dari error numpy.int64
+  const pieData = {{ pie_data|default([0, 0])|map('int')|list|tojson }};
+  const barData = {{ bar_data|default([0, 0])|map('int')|list|tojson }};
+  console.log("📊 DEBUG Chart Data:", pieData, barData);
 
   // Pie Chart
   new Chart(document.getElementById("pieChart"), {
@@ -114,5 +116,6 @@
       scales: { y: { beginAtZero: true } }
     }
   });
+});
 </script>
 {% endblock %}
