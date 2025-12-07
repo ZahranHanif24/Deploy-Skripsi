@@ -3,29 +3,33 @@ import os
 import pickle
 import joblib
 import pandas as pd
-from preprocessing import preprocess_text
 
-# =========================
+# ======================================
+# IMPORT SETELAH PINDAH KE DALAM /web
+# ======================================
+from web.preprocessing import preprocess_text
+
+# ======================================
 # PATH CONFIG
-# =========================
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # path ke folder WEBSITE - COPY
-WEB_DIR = os.path.join(BASE_DIR, "web")               # path ke folder web
+# ======================================
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # root repo
+WEB_DIR = os.path.join(BASE_DIR, "web")                # folder web
 
 MODEL_DIR = os.path.join(WEB_DIR, "model")
 STATIC_DIR = os.path.join(WEB_DIR, "static")
 TEMPLATE_DIR = os.path.join(WEB_DIR, "templates")
 DATA_PATH = os.path.join(WEB_DIR, "data", "label.xlsx")
 
-# =========================
+# ======================================
 # FLASK APP
-# =========================
+# ======================================
 app = Flask(__name__, template_folder=TEMPLATE_DIR, static_folder=STATIC_DIR)
 
-# =========================
-# HELPER FUNCTION
-# =========================
+
+# ======================================
+# HELPER LOAD MODEL
+# ======================================
 def load_model(path):
-    """Load model dari pickle/joblib"""
     if not os.path.exists(path):
         return None
     try:
@@ -34,8 +38,8 @@ def load_model(path):
     except Exception:
         return joblib.load(path)
 
+
 def to_binary_label(y):
-    """Ubah label ke Positive/Negative"""
     if y is None:
         return "Negative"
     s = str(y).strip().lower()
@@ -43,19 +47,20 @@ def to_binary_label(y):
         return "Positive"
     return "Negative"
 
-# =========================
+
+# ======================================
 # LOAD MODELS
-# =========================
+# ======================================
 tfidf = load_model(os.path.join(MODEL_DIR, "tfidf_vectorizer.pkl"))
 logreg = load_model(os.path.join(MODEL_DIR, "logistic_regression_model.pkl"))
 nb = load_model(os.path.join(MODEL_DIR, "naive_bayes_model.pkl"))
 svm = load_model(os.path.join(MODEL_DIR, "svm_model.pkl"))
 
-# =========================
-# PREDICTION FUNCTION
-# =========================
+
+# ======================================
+# PREDICTION LOGIC
+# ======================================
 def predict_all(text_raw):
-    """Prediksi dengan semua model"""
     text_norm = preprocess_text(text_raw)
     X = tfidf.transform([text_norm])
 
@@ -86,42 +91,50 @@ def predict_all(text_raw):
 
     return predictions, probas, text_norm
 
-# =========================
+
+# ======================================
 # LOAD DATASET
-# =========================
+# ======================================
 if os.path.exists(DATA_PATH):
     df = pd.read_excel(DATA_PATH)
 else:
     df = pd.DataFrame(columns=["Sentimen", "text_stemming"])
 
-# =========================
+
+# ======================================
 # ROUTES
-# =========================
+# ======================================
 @app.route("/")
-@app.route("/home")
 def home():
     return render_template("home.html")
 
+
+@app.route("/home")
+def home_redirect():
+    return render_template("home.html")
+
+
 @app.route("/prediksi", methods=["GET", "POST"])
 def prediksi():
-    predictions = probas = None
+    predictions = None
+    probas = None
     text_input = ""
+
     if request.method == "POST":
         text_input = request.form.get("text_input", "")
         if text_input.strip():
             predictions, probas, _ = predict_all(text_input)
+
     return render_template("index.html", predictions=predictions, probas=probas, text_input=text_input)
+
 
 @app.route("/visualisasi")
 def visualisasi():
     import matplotlib
-    matplotlib.use('Agg')  # ✅ gunakan backend non-GUI
+    matplotlib.use('Agg')
     import matplotlib.pyplot as plt
     from wordcloud import WordCloud, STOPWORDS
 
-    # ======================
-    # 1️⃣ PERSIAPAN DATA
-    # ======================
     df_vis = df.copy()
     label_col = None
     for col in df_vis.columns:
@@ -139,9 +152,6 @@ def visualisasi():
     count_pos = (df_vis["Sentimen_Binary"] == "Positive").sum()
     count_neg = (df_vis["Sentimen_Binary"] == "Negative").sum()
 
-    # ======================
-    # 2️⃣ GENERATE WORDCLOUD
-    # ======================
     os.makedirs(STATIC_DIR, exist_ok=True)
 
     def make_wordcloud(label, cmap, fname):
@@ -151,39 +161,36 @@ def visualisasi():
         corpus = " ".join(subset["text_stemming"].fillna("").astype(str))
         if not corpus.strip():
             return
+
         wc = WordCloud(
             width=800,
             height=400,
             colormap=cmap,
             background_color="white",
             stopwords=STOPWORDS,
-            collocations=False
+            collocations=False,
         ).generate(corpus)
-        path = os.path.join(STATIC_DIR, fname)
+
+        out_path = os.path.join(STATIC_DIR, fname)
         plt.figure(figsize=(10, 5))
         plt.imshow(wc, interpolation="bilinear")
         plt.axis("off")
-        plt.savefig(path, format="png")
+        plt.savefig(out_path, format="png")
         plt.close()
 
     make_wordcloud("Positive", "Greens", "wordcloud_positive.png")
     make_wordcloud("Negative", "Reds", "wordcloud_negative.png")
 
-    # ======================
-    # 3️⃣ RENDER TEMPLATE
-    # ======================
-    return render_template(
-        "visualisasi.html",
-        pie_data=[count_pos, count_neg],
-        bar_data=[count_pos, count_neg],
-    )
+    return render_template("visualisasi.html", pie_data=[count_pos, count_neg], bar_data=[count_pos, count_neg])
+
 
 @app.route("/dataset")
 def dataset():
     return render_template("dataset.html")
 
-# =========================
+
+# ======================================
 # RUN LOCAL
-# =========================
+# ======================================
 if __name__ == "__main__":
     app.run(debug=True)
